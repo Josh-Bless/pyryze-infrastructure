@@ -1,0 +1,94 @@
+
+plugins {
+	id 'java-library'
+    id "com.vanniktech.maven.publish" version "0.36.0"
+    id 'signing'
+}
+
+group = "io.github.josh-bless"
+version = '0.1.0'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+signing {
+    def keyPath = findProperty("signing.keyFile") as String
+    useInMemoryPgpKeys(
+        findProperty("signing.keyId") as String,
+        file(keyPath).text as String,
+        findProperty("signing.password") as String
+    )
+    sign(publishing.publications)
+}
+
+mavenPublishing {
+
+  publishToMavenCentral()
+  
+  coordinates("io.github.josh-bless", "pyryze-infrastructure", "0.1.0")
+
+  pom {
+    name = "pyryze-infrastructure"
+    description = "Pyryze Infrastructure is a reactive Java library that provides scalable infrastructure primitives and utilities for building concurrent, distributed, and high-performance backend systems."
+    inceptionYear = "2026"
+    url = "https://github.com/josh-bless/pyryze-infrastructure/"
+    licenses {
+      license {
+        name = "The Apache License, Version 2.0"
+        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    }
+    developers {
+      developer {
+        id = "josh-bless"
+        name = "Onyeche Joshua Blessing"
+        url = "https://github.com/josh-bless/"
+      }
+    }
+    scm {
+      url = "https://github.com/josh-bless/pyryze-infrastructure/"
+      connection = "scm:git:git://github.com/josh-bless/pyryze-infrastructure.git"
+      developerConnection = "scm:git:ssh://git@github.com/josh-bless/pyryze-infrastructure.git"
+    }
+  }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += "--enable-preview"
+}
+
+tasks.withType(Test).configureEach {
+    jvmArgs += "--enable-preview"
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += "--enable-preview"
+    jvmArgs +="-XX:MaxJavaStackTraceDepth=10000"
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('snippetsDir', file("build/generated-snippets"))
+}
+
+dependencies {
+    implementation "io.github.josh-bless:pyryze-util:0.1.0"
+    implementation "org.slf4j:slf4j-api:2.1.0-alpha1"
+	implementation "io.projectreactor:reactor-core:3.8.1"
+	testImplementation "org.slf4j:slf4j-simple:2.0.13"
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+	testImplementation "io.projectreactor:reactor-core:3.8.1"
+}
+
+test {
+	useJUnitPlatform()
+}
+
